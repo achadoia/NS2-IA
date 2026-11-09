@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: Copyright 2019 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "common/fs/ns2_file_time.h"
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -3032,12 +3033,12 @@ std::optional<WarmStamp> CurrentStamp(const std::filesystem::path& file, const D
     if (ec) {
         return std::nullopt;
     }
-    const auto time = std::filesystem::last_write_time(file, ec);
+    const auto time = Common::FS::WriteTimeTicks(file, ec);
     if (ec) {
         return std::nullopt;
     }
     return WarmStamp{size,
-                     static_cast<s64>(time.time_since_epoch().count()),
+                     static_cast<s64>(time),
                      entries,
                      device.GetDriverVersion(),
                      device.GetDeviceID(),
@@ -3672,7 +3673,7 @@ void PipelineCache::PreparePrecompiled(const std::filesystem::path& base_dir,
         }
         return;
     }
-    const auto modified = std::filesystem::last_write_time(path, error).time_since_epoch().count();
+    const auto modified = Common::FS::WriteTimeTicks(path, error);
     // The driver keeps what it compiled; the step runs again for another file, driver, GPU or
     // release. The release version, not the commit (2026-11-09, owner): every dev build re-ran the
     // ~20 minute preparation. A translator change inside a release only costs a few runtime
@@ -4300,6 +4301,42 @@ u32 UsedFormatTraits(std::span<const Shader::Info* const> infos) {
 std::atomic<u32> precompiled_worker_builds{};
 std::atomic<u32> precompiled_audit_logged{};
 
+/// NS2-IA: SPIR-V with its leading OpCapability / OpExtension instructions sorted. Sirit keeps
+/// them in unordered sets, so MSVC (official Fritchii) and libstdc++ (MinGW) builds list the same
+/// capabilities in another order; the module is otherwise the same, and either order is valid.
+std::vector<u32> CanonicalPreamble(const std::vector<u32>& words) {
+    constexpr u32 OpExtension = 10;
+    constexpr u32 OpCapability = 17;
+    if (words.size() <= 5) {
+        return words;
+    }
+    std::vector<std::vector<u32>> capabilities;
+    std::vector<std::vector<u32>> extensions;
+    size_t at = 5;
+    while (at < words.size()) {
+        const u32 count = words[at] >> 16;
+        const u32 opcode = words[at] & 0xffff;
+        if (count == 0 || at + count > words.size() ||
+            (opcode != OpCapability && opcode != OpExtension)) {
+            break;
+        }
+        std::vector<u32> instruction(words.begin() + at, words.begin() + at + count);
+        (opcode == OpCapability ? capabilities : extensions).push_back(std::move(instruction));
+        at += count;
+    }
+    std::ranges::sort(capabilities);
+    std::ranges::sort(extensions);
+    std::vector<u32> out(words.begin(), words.begin() + 5);
+    out.reserve(words.size());
+    for (const auto& group : {&capabilities, &extensions}) {
+        for (const auto& instruction : *group) {
+            out.insert(out.end(), instruction.begin(), instruction.end());
+        }
+    }
+    out.insert(out.end(), words.begin() + at, words.end());
+    return out;
+}
+
 /// What differs between a translation's stages (SPIR-V and serialized infos, per pipeline
 /// stage; a compute pipeline's in stage 0) and a kept record, empty when nothing does. `stage`
 /// is set to the stage that differs.
@@ -4325,7 +4362,8 @@ std::string KeptDifference(const PrecompiledKept::Index& index,
         if (kept_info != infos[stage]) {
             return "the infos";
         }
-        if (kept_spirv != spirv[stage]) {
+        if (kept_spirv != spirv[stage] &&
+            CanonicalPreamble(kept_spirv) != CanonicalPreamble(spirv[stage])) {
             const auto [mismatch, unused] = std::ranges::mismatch(kept_spirv, spirv[stage]);
             return fmt::format("the SPIR-V words ({} kept, {} translated, first at word {})",
                                kept_spirv.size(), spirv[stage].size(),

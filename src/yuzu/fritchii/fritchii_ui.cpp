@@ -37,17 +37,17 @@
 namespace FritchiiUi {
 namespace {
 
-// Graphite
-const QColor Background{0x11, 0x11, 0x13};
-const QColor Raised{0x1b, 0x1b, 0x1f};
-const QColor Field{0x18, 0x18, 0x1b};
-const QColor Button{0x1f, 0x1f, 0x24};
-const QColor Text{0xec, 0xec, 0xf1};
-const QColor TextSecondary{0x9a, 0x9a, 0xa8};
-const QColor TextDisabled{0x55, 0x55, 0x5f};
-const QColor IconIdle{0x6b, 0x6b, 0x78};
-const QColor Accent{0xa7, 0x8b, 0xfa};
-const QColor OnAccent{0x1c, 0x14, 0x33};
+// NS2-IA: AchadoIA neobrutalism (cream, black ink, flat yellow / pink / cyan / lime)
+const QColor Background{0xfa, 0xf9, 0xf5};
+const QColor Raised{0xff, 0xff, 0xff};
+const QColor Field{0xff, 0xff, 0xff};
+const QColor Button{0xff, 0xff, 0xff};
+const QColor Text{0x14, 0x14, 0x13};
+const QColor TextSecondary{0x4a, 0x48, 0x42};
+const QColor TextDisabled{0x82, 0x7e, 0x76};
+const QColor IconIdle{0xd6, 0xd3, 0xca};
+const QColor Accent{0xff, 0xd6, 0x0a};
+const QColor OnAccent{0x14, 0x14, 0x13};
 
 QPalette GraphitePalette() {
     QPalette p;
@@ -66,11 +66,12 @@ QPalette GraphitePalette() {
     p.setColor(QPalette::HighlightedText, OnAccent);
     p.setColor(QPalette::Link, Accent);
     p.setColor(QPalette::LinkVisited, Accent);
-    p.setColor(QPalette::Light, QColor(0x2e, 0x2e, 0x35));
-    p.setColor(QPalette::Midlight, QColor(0x26, 0x26, 0x2c));
-    p.setColor(QPalette::Mid, QColor(0x22, 0x22, 0x27));
-    p.setColor(QPalette::Dark, QColor(0x0c, 0x0c, 0x0e));
-    p.setColor(QPalette::Shadow, QColor(0x05, 0x05, 0x06));
+    p.setColor(QPalette::Highlight, QColor(0xff, 0x6b, 0x9d));
+    p.setColor(QPalette::Light, QColor(0xff, 0xff, 0xff));
+    p.setColor(QPalette::Midlight, QColor(0xee, 0xec, 0xe4));
+    p.setColor(QPalette::Mid, QColor(0xd6, 0xd3, 0xca));
+    p.setColor(QPalette::Dark, QColor(0x14, 0x14, 0x13));
+    p.setColor(QPalette::Shadow, QColor(0x14, 0x14, 0x13));
     for (const auto role : {QPalette::WindowText, QPalette::Text, QPalette::ButtonText}) {
         p.setColor(QPalette::Disabled, role, TextDisabled);
     }
@@ -131,14 +132,15 @@ bool ApplyTheme() {
         QFontDatabase::addApplicationFont(QStringLiteral(":/fritchii/fonts/Inter-Medium.ttf"));
         QApplication::setStyle(new GraphiteStyle);
     }
-    QFont font(QStringLiteral("Inter"));
+    QFont font(QStringLiteral("Segoe UI"));
     font.setPixelSize(14);
+    font.setWeight(QFont::DemiBold);
     QApplication::setFont(font);
     QApplication::setPalette(GraphitePalette());
-    // Folder and refresh icons come from the dark icon set.
-    QIcon::setThemeName(QStringLiteral("colorful_dark"));
+    // Light background: the light icon set.
+    QIcon::setThemeName(QStringLiteral("colorful"));
 
-    QFile qss(QStringLiteral(":/fritchii/style.qss"));
+    QFile qss(QStringLiteral(":/fritchii/ns2aia.qss"));
     if (qss.open(QFile::ReadOnly | QFile::Text)) {
         qApp->setStyleSheet(QString::fromUtf8(qss.readAll()));
     }
@@ -158,7 +160,7 @@ QIcon Icon(const QString& name, int px) {
     const QByteArray svg = file.readAll();
     QIcon icon;
     const QPixmap idle = RenderSvg(svg, IconIdle, px);
-    const QPixmap hover = RenderSvg(svg, Text, px);
+    const QPixmap hover = RenderSvg(svg, QColor(0xff, 0xff, 0xff), px);
     const QPixmap on = RenderSvg(svg, Accent, px);
     icon.addPixmap(idle, QIcon::Normal, QIcon::Off);
     icon.addPixmap(hover, QIcon::Active, QIcon::Off);
@@ -291,7 +293,7 @@ void RestructureMenus(Ui::MainWindow& ui, QMainWindow& window, const MenuHooks& 
     Rename(ui.action_Load_Amiibo, tr("&Load or Remove Amiibo..."));
     Rename(ui.action_Firmware_From_Folder, tr("From &Folder..."));
     Rename(ui.action_Firmware_From_ZIP, tr("From &ZIP..."));
-    Rename(ui.action_About, tr("&About Fritchii"));
+    Rename(ui.action_About, tr("&About NS2-IA"));
     Rename(ui.action_Eden_Dependencies, tr("&Open-Source Components"));
 }
 
@@ -408,14 +410,13 @@ QWidget* SettingsPage(QWidget* page) {
 const char* LoadingBarStyle() {
     return R"(
 QProgressBar {
-  background-color: rgba(255, 255, 255, 30);
-  border: none;
-  border-radius: 3px;
-  max-height: 6px;
+  background-color: #faf9f5;
+  border: 2px solid #141413;
+  border-radius: 0;
+  max-height: 10px;
 }
 QProgressBar::chunk {
-  background-color: #a78bfa;
-  border-radius: 3px;
+  background-color: #ffd60a;
 })";
 }
 

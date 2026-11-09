@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include "common/fs/ns2_file_time.h"
 #include <algorithm>
 #include <exception>
 #include <sstream>
@@ -312,13 +313,13 @@ std::optional<PipelineCacheFileStamp> StampPipelineCacheFile(const std::filesyst
     if (error) {
         return std::nullopt;
     }
-    const auto modified = std::filesystem::last_write_time(file, error);
+    const auto modified = Common::FS::WriteTimeTicks(file, error);
     if (error) {
         return std::nullopt;
     }
     return PipelineCacheFileStamp{
         .size = size,
-        .modified = static_cast<s64>(modified.time_since_epoch().count()),
+        .modified = static_cast<s64>(modified),
     };
 }
 

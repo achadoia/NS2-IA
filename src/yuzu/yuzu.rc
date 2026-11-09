@@ -11,7 +11,7 @@
 // remains consistent on all systems.
 // QT requires that the default application icon is named IDI_ICON1
 
-IDI_ICON1               ICON                    "../../dist/fritchii.ico"
+IDI_ICON1               ICON                    "../../dist/ns2aia.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -20,3 +20,33 @@ IDI_ICON1               ICON                    "../../dist/fritchii.ico"
 //
 
 0                       RT_MANIFEST             "../../dist/yuzu.manifest"
+
+// NS2-IA: the name Windows shows for the process
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 5,5,0,0
+ PRODUCTVERSION 5,5,0,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "041604b0"
+        BEGIN
+            VALUE "CompanyName", "Achado IA"
+            VALUE "FileDescription", "NS2-IA"
+            VALUE "FileVersion", "5.5"
+            VALUE "InternalName", "NS2-IA"
+            VALUE "LegalCopyright", "GPL-3.0 - baseado no Fritchii, Lichii e Eden"
+            VALUE "OriginalFilename", "NS2-IA.exe"
+            VALUE "ProductName", "NS2-IA - Nintendo Switch 2 Achado IA"
+            VALUE "ProductVersion", "5.5"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x416, 1200
+    END
+END

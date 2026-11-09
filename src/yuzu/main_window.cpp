@@ -5112,8 +5112,9 @@ void MainWindow::UpdateWindowTitle(std::string_view title_name, std::string_view
                                    std::string_view gpu_vendor) {
     static const std::string build_id = std::string{Common::g_build_id};
     static const std::string yuzu_title =
-        fmt::format("{} | {} | {}", std::string{Common::g_build_name},
-                    std::string{Common::g_build_version}, std::string{Common::g_compiler_id});
+        // NS2-IA: the internal build name stays "Fritchii" so its tuned paths stay on.
+        fmt::format("NS2-IA | {} | {}", std::string{Common::g_build_version},
+                    std::string{Common::g_compiler_id});
 
     const auto override_title =
         fmt::format(fmt::runtime(std::string(Common::g_title_bar_format_idle)), build_id);
@@ -5796,6 +5797,12 @@ void MainWindow::UpdateUITheme() {
 
 void MainWindow::LoadTranslation() {
     bool loaded;
+
+    // NS2-IA: Portuguese by default (older builds saved "en" when they had no translations).
+    if (UISettings::values.language.GetValue().empty() ||
+        UISettings::values.language.GetValue() == "en") {
+        UISettings::values.language = std::string("pt_BR");
+    }
 
     if (UISettings::values.language.GetValue().empty()) {
         // If the selected language is empty, use system locale

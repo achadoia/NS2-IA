@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include "common/fs/ns2_file_time.h"
 #include "video_core/nx2_precompile.h"
 
 #include <algorithm>
@@ -36,11 +37,11 @@ std::string FileStamp(const std::filesystem::path& path) {
     if (error) {
         return {};
     }
-    const auto time = std::filesystem::last_write_time(path, error);
+    const auto time = Common::FS::WriteTimeTicks(path, error);
     if (error) {
         return {};
     }
-    return fmt::format("{} {}", size, time.time_since_epoch().count());
+    return fmt::format("{} {}", size, time);
 }
 
 /// <file>.recipe.txt: the recipe a precompiled file was assembled from, by its size and the

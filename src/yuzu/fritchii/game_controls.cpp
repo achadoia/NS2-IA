@@ -23,7 +23,7 @@ constexpr Qt::WindowFlags StripFlags = Qt::Tool | Qt::FramelessWindowHint |
 // after it leaves (or leaves the strip).
 constexpr int HotZone = 90;
 constexpr qint64 LingerMs = 1200;
-constexpr unsigned IconColor = 0xececf1;
+constexpr unsigned IconColor = 0x141413;
 
 } // namespace
 
@@ -143,10 +143,12 @@ void GameControls::Place(const QRect& area) {
 
 void GameControls::paintEvent(QPaintEvent*) {
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(QColor(255, 255, 255, 22));
-    painter.setBrush(QColor(0x16, 0x16, 0x1a, 235));
-    painter.drawRoundedRect(QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5), 14, 14);
+    // NS2-IA: flat cream box, thick black border, hard shadow.
+    const QRect box = rect().adjusted(0, 0, -5, -5);
+    painter.fillRect(box.translated(5, 5), QColor(0x14, 0x14, 0x13));
+    painter.fillRect(box, QColor(0xfa, 0xf9, 0xf5));
+    painter.setPen(QPen(QColor(0x14, 0x14, 0x13), 3));
+    painter.drawRect(box.adjusted(1, 1, -2, -2));
 }
 
 } // namespace FritchiiUi

@@ -53,10 +53,15 @@ QPixmap Rounded(const QPixmap& source, int size, int radius) {
         clip.addRoundedRect(QRectF(0, 0, size, size), radius, radius);
         painter.setClipPath(clip);
         if (source.isNull()) {
-            painter.fillRect(QRect(0, 0, size, size), QColor(0x24, 0x23, 0x2c));
+            painter.fillRect(QRect(0, 0, size, size), QColor(0xff, 0x6b, 0x9d));
         } else {
             painter.drawPixmap(QRect(0, 0, size, size), source);
         }
+        // NS2-IA: thick black frame on every cover.
+        const int frame = std::max(3, size / 40);
+        painter.setPen(QPen(QColor(0x14, 0x14, 0x13), frame));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(QRectF(frame / 2.0, frame / 2.0, size - frame, size - frame));
     }
     return out;
 }
@@ -331,18 +336,18 @@ void Home::Refresh() {
     if (hero) {
         hero_path = hero->path;
         hero_id = hero->program_id;
-        cover->setPixmap(Rounded(hero->icon, CoverSize, 18));
+        cover->setPixmap(Rounded(hero->icon, CoverSize, 0));
         cover->show();
         title->setText(hero->title);
         play->setText(tr("Play"));
-        play->setIcon(Glyph(QStringLiteral("play"), 0x1c1433, 18));
+        play->setIcon(Glyph(QStringLiteral("play"), 0x141413, 18));
     } else {
         hero_path.clear();
         hero_id = 0;
         cover->hide();
         title->setText(tr("Add your games"));
         play->setText(tr("Add Folder"));
-        play->setIcon(Glyph(QStringLiteral("plus"), 0x1c1433, 18));
+        play->setIcon(Glyph(QStringLiteral("plus"), 0x141413, 18));
     }
 
     // The small row: the other games, then "All games" and "Add folder".
@@ -375,7 +380,7 @@ void Home::Refresh() {
             continue;
         }
         ++shown;
-        QToolButton* button = tile(QIcon(Rounded(game.icon, TileIcon, 12)), game.title);
+        QToolButton* button = tile(QIcon(Rounded(game.icon, TileIcon, 0)), game.title);
         connect(button, &QToolButton::clicked, this,
                 [this, path = game.path, id = game.program_id] {
                     hero_path = path;
