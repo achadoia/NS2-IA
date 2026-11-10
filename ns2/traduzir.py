@@ -20,6 +20,9 @@ FORCAR = {
     "Audio": "Áudio",
     "Configure Controls": "Configurar controles",
     "Directory": "Pasta",
+    # titulo das janelas de confirmacao (Parar emulacao etc.): nome do emulador
+    "Lichii": "NS2-IA",
+    "Lichii has not been compiled with OpenGL support.": "O NS2-IA não foi compilado com suporte a OpenGL.",
 }
 # Frases com plural (numerus): formas singular e plural.
 PLURAIS = {

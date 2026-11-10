@@ -123,7 +123,9 @@ public:
         setPos(c.x, c.y);
         setToolTip(QStringLiteral("<b>%1</b><br>%2<br>%3")
                        .arg(c.nome.toHtmlEscaped(), cat.nome.toHtmlEscaped(),
-                            pego ? U("✔ Já pego") : U("○ Falta pegar")));
+                            !cat.rastreavel ? U("(o jogo não guarda no save)")
+                            : pego          ? U("✔ Já pego")
+                                            : U("○ Falta pegar")));
         setZValue(pego ? 1 : 2);
         setFlag(ItemIgnoresTransformations);
         setAcceptHoverEvents(true);
@@ -463,7 +465,8 @@ bool NotasZelda::CarregarDados(const QString& dir) {
         const auto c = v.toObject();
         Categoria cat{c.value(QStringLiteral("id")).toString(), c.value(QStringLiteral("nome")).toString(),
                       c.value(QStringLiteral("grupo")).toString(), c.value(QStringLiteral("cor")).toString(),
-                      c.value(QStringLiteral("letra")).toString(), c.value(QStringLiteral("visivel")).toBool()};
+                      c.value(QStringLiteral("letra")).toString(), c.value(QStringLiteral("visivel")).toBool(),
+                      c.value(QStringLiteral("rastreavel")).toBool(true)};
         categorias.push_back(cat);
         cat_visivel[cat.id] = cat.visivel;
     }
@@ -532,6 +535,9 @@ bool NotasZelda::CarregarDados(const QString& dir) {
     }
     barra_cat.clear();
     for (const auto& c : categorias) {
+        if (!c.rastreavel) {
+            continue;
+        }
         auto* w = new QWidget(barras);
         auto* v = new QVBoxLayout(w);
         v->setContentsMargins(0, 4, 0, 0);
@@ -630,9 +636,11 @@ void NotasZelda::Redesenhar() {
     int total = 0, pegos = 0;
     lista_area->clear();
     for (const auto& c : checks) {
-        const bool p = Pego(c);
-        // progresso geral: conta cada chave uma vez
-        if (!vistos[c.cat].contains(c.chave)) {
+        const auto* cat0 = cat_por_id.value(c.cat);
+        const bool rastreavel = cat0 && cat0->rastreavel;
+        const bool p = rastreavel && Pego(c);
+        // progresso geral: conta cada chave uma vez (so o que o jogo guarda no save)
+        if (rastreavel && !vistos[c.cat].contains(c.chave)) {
             vistos[c.cat].insert(c.chave);
             tot[c.cat]++;
             total++;
@@ -644,9 +652,11 @@ void NotasZelda::Redesenhar() {
         if (c.area != area.id || (c.era != era && c.era != QStringLiteral("ambos"))) {
             continue;
         }
-        tot_area[c.cat]++;
-        if (p) {
-            got_area[c.cat]++;
+        if (rastreavel) {
+            tot_area[c.cat]++;
+            if (p) {
+                got_area[c.cat]++;
+            }
         }
         const auto* cat = cat_por_id.value(c.cat);
         if (!cat || !cat_visivel.value(c.cat) || (esconder && p)) {
@@ -659,13 +669,16 @@ void NotasZelda::Redesenhar() {
         if (c.tem_pos) {
             cena->addItem(new Marcador(c, *cat, p));
         }
-        auto* it = new QListWidgetItem((p ? U("✔  ") : U("○  ")) + c.nome, lista_area);
+        auto* it = new QListWidgetItem((!rastreavel ? U("·  ") : p ? U("✔  ") : U("○  ")) + c.nome, lista_area);
         it->setForeground(p ? QColor(0x8a, 0x88, 0x80) : QColor(cat->cor));
         it->setData(Qt::UserRole, c.tem_pos ? QPointF(c.x, c.y) : QPointF(-1, -1));
         it->setToolTip(c.tem_pos ? U("Clique duas vezes para achar no mapa") : U("Sem posição no mapa"));
     }
     for (auto it = lbl_cat.begin(); it != lbl_cat.end(); ++it) {
-        it.value()->setText(QStringLiteral("%1/%2").arg(got_area.value(it.key())).arg(tot_area.value(it.key())));
+        const auto* cat = cat_por_id.value(it.key());
+        it.value()->setText(cat && !cat->rastreavel
+                                ? U("só mapa")
+                                : QStringLiteral("%1/%2").arg(got_area.value(it.key())).arg(tot_area.value(it.key())));
     }
     for (auto it = barra_cat.begin(); it != barra_cat.end(); ++it) {
         it.value()->setMaximum(std::max(1, tot.value(it.key())));

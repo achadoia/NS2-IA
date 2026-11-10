@@ -35,6 +35,7 @@ struct Area {
 struct Categoria {
     QString id, nome, grupo, cor, letra;
     bool visivel = true;
+    bool rastreavel = true; // false: o jogo nao guarda no save (so referencia no mapa)
 };
 
 struct Check {
