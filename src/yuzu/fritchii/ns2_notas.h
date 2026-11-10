@@ -42,7 +42,8 @@ struct Check {
     QString id, cat, nome, area, area_nome, era;
     double x = -1, y = -1;
     bool tem_pos = false;
-    quint64 chave = 0;
+    quint64 chave = 0;  // Bool64bitKey do ator (skulltula, coracao...)
+    quint32 flag = 0;   // Bool nomeado (bau: IsTreasureBoxOpen.<hash>); 0 = usa a chave
 };
 
 struct ItemLista {

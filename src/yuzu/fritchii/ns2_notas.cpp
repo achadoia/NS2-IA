@@ -483,6 +483,7 @@ bool NotasZelda::CarregarDados(const QString& dir) {
         ch.x = c.value(QStringLiteral("x")).toDouble(-1);
         ch.y = c.value(QStringLiteral("y")).toDouble(-1);
         ch.chave = c.value(QStringLiteral("chave")).toString().toULongLong(nullptr, 16);
+        ch.flag = static_cast<quint32>(c.value(QStringLiteral("flag")).toDouble(0));
         checks.push_back(ch);
     }
     for (const auto& v : o.value(QStringLiteral("listas")).toArray()) {
@@ -565,7 +566,10 @@ QString NotasZelda::EraAtual() const {
 }
 
 bool NotasZelda::Pego(const Check& c) const {
-    return save.ok && save.chaves.contains(c.chave);
+    if (!save.ok) {
+        return false;
+    }
+    return c.flag ? save.bools.value(c.flag) != 0 : save.chaves.contains(c.chave);
 }
 
 void NotasZelda::TrocarArea(int idx) {
@@ -640,8 +644,9 @@ void NotasZelda::Redesenhar() {
         const bool rastreavel = cat0 && cat0->rastreavel;
         const bool p = rastreavel && Pego(c);
         // progresso geral: conta cada chave uma vez (so o que o jogo guarda no save)
-        if (rastreavel && !vistos[c.cat].contains(c.chave)) {
-            vistos[c.cat].insert(c.chave);
+        const quint64 id_unico = c.flag ? (0xF000000000000000ULL | c.flag) : c.chave;
+        if (rastreavel && !vistos[c.cat].contains(id_unico)) {
+            vistos[c.cat].insert(id_unico);
             tot[c.cat]++;
             total++;
             if (p) {
