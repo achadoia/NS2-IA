@@ -17,6 +17,7 @@
 #include "yuzu/bootmanager.h"
 #include "yuzu/fritchii/game_controls.h"
 #include "yuzu/fritchii/home.h"
+#include "yuzu/fritchii/ns2_inicio.h"
 #include "yuzu/fritchii/precompile_gate.h"
 #include "yuzu/fritchii/whats_new.h"
 #include "yuzu/game/game_list.h"
@@ -135,10 +136,16 @@ void MainWindow::SetUpFritchiiUi() {
         .classic_menus = {ui->menu_File, ui->menu_Emulation, ui->menu_View, ui->menu_Tools,
                           ui->menu_Help},
     };
-    fritchii_home = new FritchiiUi::Home(this, ui->horizontalLayout, game_list,
-                                         game_list_placeholder, std::move(home));
-    connect(this, &MainWindow::EmulationStarting, fritchii_home,
-            &FritchiiUi::Home::OnEmulationStarting);
+    // NS2-IA: the classic game list over the NS2-IA art instead of Fritchii's home page.
+    // NS2_FRITCHII_HOME=1 brings the Fritchii home page back.
+    if (qEnvironmentVariableIntValue("NS2_FRITCHII_HOME") != 0) {
+        fritchii_home = new FritchiiUi::Home(this, ui->horizontalLayout, game_list,
+                                             game_list_placeholder, std::move(home));
+        connect(this, &MainWindow::EmulationStarting, fritchii_home,
+                &FritchiiUi::Home::OnEmulationStarting);
+    } else {
+        Ns2::SetUpInicio(game_list);
+    }
 
     // In-game controls: the menu bar is gone and the rail steps aside while a game runs.
     auto* controls = new FritchiiUi::GameControls(

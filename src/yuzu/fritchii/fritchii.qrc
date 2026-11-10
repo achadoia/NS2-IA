@@ -2,6 +2,8 @@
     <qresource prefix="fritchii">
         <file>style.qss</file>
         <file>ns2aia.qss</file>
+        <file>ns2/fundo.jpg</file>
+        <file>ns2/logo.png</file>
         <file>whats-new.md</file>
         <file>fonts/Inter-Regular.ttf</file>
         <file>fonts/Inter-Medium.ttf</file>

@@ -214,6 +214,8 @@ add_executable(yuzu
     fritchii/game_controls.cpp
     fritchii/game_controls.h
     fritchii/main_window_fritchii.cpp
+    fritchii/ns2_inicio.cpp
+    fritchii/ns2_inicio.h
     fritchii/perf_overlay.cpp
     fritchii/perf_overlay.h
     fritchii/precompile_gate.cpp

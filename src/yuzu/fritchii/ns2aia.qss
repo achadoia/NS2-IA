@@ -277,3 +277,69 @@ QToolButton#FritchiiTile {
     font-weight: 800;
 }
 QToolButton#FritchiiTile:hover { background: #4cc9f0; }
+
+/* ===== Início NS2-IA: lista de jogos escura sobre a arte (fritchii/ns2_inicio.cpp) ===== */
+QWidget#Ns2Inicio { background: #141413; }
+QWidget#Ns2Inicio QTreeView, QWidget#Ns2Inicio QListView {
+    background: transparent;
+    border: none;
+    color: #faf9f5;
+    font-size: 17px;
+    font-weight: 700;
+    outline: none;
+}
+QWidget#Ns2Inicio QTreeView::item, QWidget#Ns2Inicio QListView::item {
+    background: rgba(20, 20, 19, 205);
+    border-top: 2px solid rgba(250, 249, 245, 18);
+    padding: 10px 6px;
+    color: #faf9f5;
+}
+QWidget#Ns2Inicio QTreeView::item:hover, QWidget#Ns2Inicio QListView::item:hover {
+    background: rgba(76, 201, 240, 70);
+}
+QWidget#Ns2Inicio QTreeView::item:selected, QWidget#Ns2Inicio QListView::item:selected {
+    background: #ffd60a;
+    color: #141413;
+    border-top: 3px solid #141413;
+    border-bottom: 3px solid #141413;
+}
+QWidget#Ns2Inicio QTreeView::branch { background: rgba(20, 20, 19, 205); }
+QWidget#Ns2Inicio QTreeView::branch:selected { background: #ffd60a; }
+QWidget#Ns2Inicio QHeaderView { background: transparent; border: none; }
+QWidget#Ns2Inicio QHeaderView::section {
+    background: #141413;
+    color: #ffd60a;
+    border: 3px solid #ffd60a;
+    border-right-width: 6px;
+    border-bottom-width: 6px;
+    margin: 0 8px 8px 0;
+    padding: 8px 16px;
+    font-family: "Arial Black";
+    font-size: 15px;
+}
+QWidget#Ns2Inicio QHeaderView::section:hover { background: #ff6b9d; color: #141413; border-color: #141413; }
+QWidget#Ns2Inicio QScrollBar:vertical { background: transparent; border: none; width: 12px; }
+QWidget#Ns2Inicio QScrollBar::handle:vertical { background: #ffd60a; margin: 2px; }
+QWidget#Ns2Inicio QScrollBar:horizontal { background: transparent; border: none; height: 12px; }
+QWidget#Ns2Inicio QScrollBar::handle:horizontal { background: #ffd60a; margin: 2px; }
+/* barra de filtro embaixo */
+QWidget#Ns2Inicio QLabel { color: #ffd60a; font-family: "Arial Black"; font-size: 15px; }
+QWidget#Ns2Inicio QLineEdit {
+    background: #141413;
+    color: #faf9f5;
+    border: 3px solid #ffd60a;
+    padding: 8px 12px;
+    font-size: 16px;
+    selection-background-color: #ff6b9d;
+}
+QWidget#Ns2Inicio QLineEdit:focus { border-color: #4cc9f0; background: #1c1c1a; }
+QWidget#Ns2Inicio QToolButton {
+    background: #ff6b9d;
+    color: #141413;
+    border: 3px solid #141413;
+    font-family: "Arial Black";
+    font-size: 16px;
+    min-width: 34px;
+    min-height: 34px;
+}
+QWidget#Ns2Inicio QToolButton:hover { background: #ffd60a; }
