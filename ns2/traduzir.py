@@ -19,6 +19,11 @@ FORCAR = {
     "Controls": "Controles",
     "Audio": "Áudio",
     "Configure Controls": "Configurar controles",
+    "Directory": "Pasta",
+}
+# Frases com plural (numerus): formas singular e plural.
+PLURAIS = {
+    "%1 of %n result(s)": ("%1 de %n resultado", "%1 de %n resultados"),
 }
 
 
@@ -49,7 +54,18 @@ def aplicar():
         name = ctx.findtext("name")
         for m in ctx.iter("message"):
             tr = m.find("translation")
-            if tr is None or m.get("numerus") == "yes":
+            if tr is None:
+                continue
+            if m.get("numerus") == "yes":
+                forms = PLURAIS.get(m.findtext("source") or "")
+                if forms is not None:
+                    for child in list(tr):
+                        tr.remove(child)
+                    tr.text = None
+                    for form in forms:
+                        ET.SubElement(tr, "numerusform").text = form
+                    tr.attrib.pop("type", None)
+                    filled += 1
                 continue
             forced = FORCAR.get(m.findtext("source") or "")
             if forced is not None:
@@ -66,6 +82,19 @@ def aplicar():
             tr.text = pt
             tr.attrib.pop("type", None)
             filled += 1
+    # Os menus do Fritchii usam QObject::tr dentro de FritchiiUi: o lupdate guarda os textos no
+    # contexto "FritchiiUi", mas em tempo de execucao eles sao procurados em "QObject".
+    root = tree.getroot()
+    fritchii = next((c for c in root.iter("context") if c.findtext("name") == "FritchiiUi"), None)
+    if fritchii is not None:
+        qobject = next((c for c in root.iter("context") if c.findtext("name") == "QObject"), None)
+        if qobject is None:
+            qobject = ET.SubElement(root, "context")
+            ET.SubElement(qobject, "name").text = "QObject"
+        have = {m.findtext("source") for m in qobject.iter("message")}
+        for m in fritchii.iter("message"):
+            if m.findtext("source") not in have and m.find("translation") is not None:
+                qobject.append(ET.fromstring(ET.tostring(m)))
     header = '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE TS>\n'
     body = ET.tostring(tree.getroot(), encoding="unicode")
     TS.write_text(header + body + "\n", encoding="utf-8")

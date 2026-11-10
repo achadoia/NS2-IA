@@ -77,7 +77,7 @@ public:
                                               Qt::SmoothTransformation);
             painter.drawPixmap(area.width() - scaled.width(), area.height() - scaled.height(),
                                scaled);
-            painter.fillRect(dialog->rect(), QColor(0, 0, 0, 110));
+            painter.fillRect(dialog->rect(), QColor(0, 0, 0, 120));
         }
         if (!logo.isNull()) {
             QRect slot(12, area.height() - logo.height() - 70, logo.width(), logo.height());
@@ -123,9 +123,9 @@ QIcon SidebarIcon(const QString& name) {
         return pixmap;
     };
     QIcon icon;
-    icon.addPixmap(render("#ffd60a"), QIcon::Normal);
-    icon.addPixmap(render("#ffd60a"), QIcon::Active);
-    icon.addPixmap(render("#141413"), QIcon::Selected);
+    icon.addPixmap(render("#cfcdc6"), QIcon::Normal);
+    icon.addPixmap(render("#ffffff"), QIcon::Active);
+    icon.addPixmap(render("#ffd60a"), QIcon::Selected);
     return icon;
 }
 

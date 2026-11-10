@@ -103,17 +103,12 @@ def fundo():
     band(d, 380, 120, YELLOW, y0=-40, y1=110)
     band(d, 530, 34, CREAM, y0=-40, y1=110)
     band(d, 590, 60, PINK, y0=-40, y1=110)
-    band(d, 1500, 90, YELLOW + (255,), y0=-40, y1=60)
-    band(d, 1620, 30, CYAN, y0=-40, y1=60)
     # faixa fina na borda do topo
-    d.rectangle((0, 104, W, 108), fill=YELLOW)
     # retículas
-    halftone(img, 1650, 330, 260, PINK + (255,), seed=3)
-    halftone(img, 1820, 760, 220, CYAN + (255,), seed=4)
-    halftone(img, 260, 980, 260, YELLOW + (255,), seed=5)
+    halftone(img, 260, 980, 220, (90, 80, 30, 255), seed=5)
     gamepad(img, 1500, 800, 1.15)
     # escurece um pouco para a lista ficar legivel
-    img.alpha_composite(Image.new("RGBA", (W, H), (0, 0, 0, 70)))
+    img.alpha_composite(Image.new("RGBA", (W, H), (0, 0, 0, 165)))
     OUT.mkdir(parents=True, exist_ok=True)
     img.convert("RGB").save(OUT / "fundo.jpg", quality=90)
 
