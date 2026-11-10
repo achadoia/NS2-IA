@@ -95,6 +95,17 @@ def aplicar():
         for m in fritchii.iter("message"):
             if m.findtext("source") not in have and m.find("translation") is not None:
                 qobject.append(ET.fromstring(ET.tostring(m)))
+    # Classes do Fritchii dentro do namespace FritchiiUi: em tempo de execucao o contexto e
+    # "FritchiiUi::<Classe>", mas o lupdate grava so "<Classe>". Copia para o nome completo.
+    for cls in ("GameControls", "Home", "PerfOverlay", "PrecompileGate"):
+        short = next((c for c in root.iter("context") if c.findtext("name") == cls), None)
+        full_name = "FritchiiUi::" + cls
+        if short is None or any(c.findtext("name") == full_name for c in root.iter("context")):
+            continue
+        full = ET.SubElement(root, "context")
+        ET.SubElement(full, "name").text = full_name
+        for m in short.iter("message"):
+            full.append(ET.fromstring(ET.tostring(m)))
     header = '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE TS>\n'
     body = ET.tostring(tree.getroot(), encoding="unicode")
     TS.write_text(header + body + "\n", encoding="utf-8")
