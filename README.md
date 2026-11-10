@@ -7,83 +7,56 @@
 -->
 
 <p align="center">
-  <img src="dist/branding/lichii_icon_with_logo.png" alt="Lichii" width="600">
+  <img src="ns2/arte/ns2ia.png" alt="NS2-IA" width="180">
 </p>
 
-# Lichii
+# NS2-IA — Nintendo Switch 2 Achado IA
 
-Lichii is an experimental, open-source Nintendo Switch and Switch 2 emulator written in C++. It builds on Eglantine, Eden, yuzu and Sudachi, preserving their contributions while developing this fork's game compatibility and renderer fixes.
+O **NS2-IA** é um emulador experimental de Nintendo Switch / Switch 2, **todo em português** e
+otimizado para placas **AMD**. É um fork do [Fritchii](https://github.com/Frizti/Fritchii), que por
+sua vez vem do Lichii, Eden e yuzu. Mantido pelo canal **Achado IA**.
 
-This is an independent fork, not an official release of those upstream projects. Lichii is not affiliated with Nintendo.
+> Projeto independente, sem ligação com a Nintendo nem com os projetos de origem.
+> **Não vem com jogos, chaves (prod.keys) nem firmware.** Use só cópias que você extraiu do seu
+> próprio console.
 
-## Downloads and setup
+## O que o NS2-IA traz a mais
 
-Published builds belong on this fork's [releases page](https://github.com/zortos293/Eglantine/releases). The repository still uses its historical Eglantine name; the desktop application is now Lichii.
+- **Interface em português (pt-BR)** e visual escuro neobrutalista da Achado IA.
+- **Notas do Zelda (F7)**: janela com o mapa de cada área de *Ocarina of Time* (Switch 2), com as
+  Skulltulas Douradas, Pedaços e Recipientes de Coração, baús, rupias prateadas e paredes rachadas.
+  Marca sozinha o que você já pegou, lendo o save do jogo. Os mapas e os dados são gerados a partir do
+  RomFS **do seu próprio jogo**, por isso nada do jogo vem neste repositório.
+- **Microfone do Switch 2**, para tocar a ocarina com a voz no *Ocarina of Time* (portado do Lichii).
+- **Correção para placas AMD** do risco colorido no contorno das montanhas (Fritchii PR #29 / Lichii #353).
+- Reaproveita os caches de shader do Fritchii oficial.
 
-On Windows, extract the entire build archive and run **lichii.exe**. Only use games and system files you have legally obtained. Games, keys and firmware are not included.
+## Compilar (Windows, MSYS2 UCRT64)
 
-### Existing saves and settings
+Requer o [MSYS2](https://www.msys2.org/) no ambiente **UCRT64** com clang, cmake, ninja e Qt 6
+(`qt6-base`, `qt6-svg`, `qt6-tools`, `qt6-declarative`). Detalhes do build herdado em
+[docs/Build.md](docs/Build.md).
 
-The rebrand intentionally retains the existing Eden/Eglantine data directories and configuration keys. It does not move or delete saves, settings or shader caches. Back up your saves before testing experimental builds.
-
-## Compatibility and issue reports
-
-Compatibility and performance vary by game, hardware and driver. Rendering errors, stutters and crashes remain possible. Passing automated tests does not establish that a game renders correctly, and this project makes no universal frame-rate guarantee.
-
-When [reporting an issue](https://github.com/zortos293/Eglantine/issues), include:
-
-- The exact build, game version, CPU, GPU and driver version.
-- Relevant settings and steps to reproduce the problem.
-- A screenshot and the log from the affected session, after checking it for personal information.
-
-Do not upload game files, keys, firmware or private account information.
-
-## Building and contributing
-
-See the [build guide](docs/Build.md), [user documentation](docs/user/README.md) and [coding guidelines](docs/Coding.md). Some inherited documentation and internal build target names still use upstream names. The GUI build target remains `yuzu`; its output is `lichii.exe` on Windows and `lichii` on other desktop platforms.
-
-Keep changes focused and distinguish code-level checks from actual gameplay testing.
-
-## Artwork
-Art created by YOB (yobslab)
-The supplied Lichii logo, icon and library artwork are in [dist/branding](dist/branding). Windows, Linux and macOS icon resources are generated from that artwork by [Generate-LichiiIcons.ps1](tools/Generate-LichiiIcons.ps1).
-
-## Support Lichii
-
-Lichii is free and stays free. If you want to help, you can donate in crypto. Donations help pay for the AI tools and build machines used to develop this open-source project faster.
-
-**Solana (SOL)**
-```text
-JepEjfyWjGjhJvHSrqj52KtLjcbbbmUh1iGqerYBF4w
+```bash
+bash ns2/compilar.sh    # traduções + configurar + compilar em build/ns2
+bash ns2/empacotar.sh   # gera a pasta pronta com o NS2-IA.exe e as DLLs
+bash ns2/atualizar.sh   # traz a versão mais nova do Fritchii e reaplica as mudanças do NS2-IA
 ```
 
-**Ethereum (ETH)**
-```text
-0x055ABa1b80Bc35C836Ce7E9F47c2b3d6C75b5534
-```
+Mais detalhes em [ns2/LEIA-ME.md](ns2/LEIA-ME.md). Internamente o alvo de compilação ainda se chama
+`yuzu` e algumas pastas mantêm os nomes de origem.
 
-**Bitcoin (BTC)**
-```text
-bc1qcvxdpf4qvdhqp8ee4s355cjmxrzsphsdwpl8w4
-```
+## Relatar problemas
 
-**BNB Smart Chain (BNB)**
-```text
-0x055ABa1b80Bc35C836Ce7E9F47c2b3d6C75b5534
-```
+Abra uma *issue* com: versão do NS2-IA, jogo e versão do jogo, processador, placa de vídeo e driver,
+o que aconteceu e como repetir, e o log (`%APPDATA%\eden\log`). **Nunca envie arquivos de jogo,
+chaves, firmware ou dados da sua conta.**
 
-**Polygon**
-```text
-0x055ABa1b80Bc35C836Ce7E9F47c2b3d6C75b5534
-```
+## Créditos e licença
 
-Send each coin on its matching network. Coins sent on the wrong network can't be recovered.
+O NS2-IA existe graças ao trabalho de **Frizti** ([Fritchii](https://github.com/Frizti/Fritchii)),
+**zortos293** e colaboradores ([Lichii / Eglantine](https://github.com/zortos293/Eglantine)), e das
+equipes **Eden**, **yuzu** e **Sudachi**. Os avisos de copyright originais e as licenças de terceiros
+foram mantidos. O README original do Lichii está em [docs/README-Lichii.md](docs/README-Lichii.md).
 
-> [!NOTE]
-> Donations are voluntary gifts and are non-refundable. A donation does not buy any product, service, perk, early access, exclusive build, priority support or say in the project. Every release stays free and public for everyone.
-
-## Credits and license
-
-Lichii inherits the work of the Eglantine, Eden, yuzu and Sudachi projects and their contributors, including Eglantine's original developer Camille LaVey. Original copyright notices and third-party licenses are retained.
-
-See [LICENSE.txt](LICENSE.txt) and the source files for applicable license terms.
+Licença: GPL-3.0-or-later. Veja [LICENSE.txt](LICENSE.txt) e a pasta [LICENSES](LICENSES).
