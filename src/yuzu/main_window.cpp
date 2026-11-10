@@ -45,6 +45,7 @@
 #include "util/util.h"
 #include "yuzu/game/game_list.h"
 #include "yuzu/nup_dialogs.h"
+#include "yuzu/fritchii/ns2_notas.h"
 #include "yuzu/shader_warm_dialog.h"
 
 #include "applets/qt_amiibo_settings.h"
@@ -1414,6 +1415,24 @@ void MainWindow::InitializeDebugWidgets() {
     controller_dialog = new ControllerDialog(QtCommon::system->HIDCore(), input_subsystem, this);
     controller_dialog->hide();
     debug_menu->addAction(controller_dialog->toggleViewAction());
+
+    // NS2-IA: Notas do Zelda (mapa com checks marcados pelo save). Ferramentas > Notas do Zelda / F7.
+    auto* notas_action = new QAction(QString::fromUtf8("Notas do Zelda (mapa e checks)"), this);
+    notas_action->setShortcut(QKeySequence(Qt::Key_F7));
+    notas_action->setShortcutContext(Qt::ApplicationShortcut);
+    ui->menu_Tools->addSeparator();
+    ui->menu_Tools->addAction(notas_action);
+    addAction(notas_action);
+    connect(notas_action, &QAction::triggered, this, [this] {
+        if (!notas_zelda) {
+            notas_zelda = new NotasZelda(this);
+        }
+        u64 title_id = 0x0400486024DEC000ULL; // sem jogo aberto: Ocarina of Time (Switch 2)
+        if (emulation_running) {
+            title_id = QtCommon::system->GetApplicationProcessProgramID();
+        }
+        notas_zelda->Abrir(title_id);
+    });
 }
 
 void MainWindow::InitializeRecentFileMenuActions() {

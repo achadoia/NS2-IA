@@ -52,6 +52,7 @@ class GRenderWindow;
 class LoadingScreen;
 class OverlayDialog;
 class ControllerDialog;
+class NotasZelda;
 class QLabel;
 class MultiplayerState;
 class QPushButton;
@@ -613,6 +614,7 @@ private:
 
     // Debugger panes
     ControllerDialog* controller_dialog = nullptr;
+    NotasZelda* notas_zelda = nullptr; // NS2-IA: Notas do Zelda (F7)
 
     QAction* actions_recent_files[max_recent_files_item];
 

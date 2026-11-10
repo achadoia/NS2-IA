@@ -216,6 +216,8 @@ add_executable(yuzu
     fritchii/main_window_fritchii.cpp
     fritchii/ns2_inicio.cpp
     fritchii/ns2_inicio.h
+    fritchii/ns2_notas.cpp
+    fritchii/ns2_notas.h
     fritchii/perf_overlay.cpp
     fritchii/perf_overlay.h
     fritchii/precompile_gate.cpp
