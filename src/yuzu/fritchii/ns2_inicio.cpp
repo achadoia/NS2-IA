@@ -6,6 +6,10 @@
 
 #include <QAbstractItemView>
 #include <QApplication>
+#include <QBuffer>
+#include <QFile>
+#include <QIcon>
+#include <QImageReader>
 #include <QEvent>
 #include <QLayout>
 #include <QPainter>
@@ -99,6 +103,31 @@ private:
 };
 
 } // namespace
+
+QIcon SidebarIcon(const QString& name) {
+    QFile file(QStringLiteral(":/fritchii/ns2/icons/%1.svg").arg(name));
+    if (!file.open(QFile::ReadOnly)) {
+        return {};
+    }
+    const QByteArray svg = file.readAll();
+    const auto render = [&svg](const char* color) {
+        QByteArray colored = svg;
+        colored.replace("currentColor", color);
+        QBuffer buffer(&colored);
+        buffer.open(QIODevice::ReadOnly);
+        QImageReader reader(&buffer, "svg");
+        const qreal ratio = qApp->devicePixelRatio();
+        reader.setScaledSize(QSize(24, 24) * ratio);
+        QPixmap pixmap = QPixmap::fromImage(reader.read());
+        pixmap.setDevicePixelRatio(ratio);
+        return pixmap;
+    };
+    QIcon icon;
+    icon.addPixmap(render("#ffd60a"), QIcon::Normal);
+    icon.addPixmap(render("#ffd60a"), QIcon::Active);
+    icon.addPixmap(render("#141413"), QIcon::Selected);
+    return icon;
+}
 
 void SetUpDialogArt() {
     static bool once = false;

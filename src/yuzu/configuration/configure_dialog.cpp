@@ -31,6 +31,7 @@
 #include "yuzu/configuration/configure_ui.h"
 #include "yuzu/configuration/configure_web.h"
 #include "yuzu/hotkeys.h"
+#include "yuzu/fritchii/ns2_inicio.h"
 #include "yuzu/fritchii/fritchii_ui.h"
 
 ConfigureDialog::ConfigureDialog(QWidget* parent, HotkeyRegistry& registry_,
@@ -217,9 +218,18 @@ void ConfigureDialog::PopulateSelectionList() {
     [[maybe_unused]] const QSignalBlocker blocker(ui->selectorList);
 
     ui->selectorList->clear();
+    // NS2-IA: an icon per group, in the order of fritchii_items.
+    static constexpr std::array<const char*, 6> ns2_icons{"geral",   "graficos", "controles",
+                                                          "audio",   "sistema",  "avancado"};
+    size_t group = 0;
     for (const auto& entry : FritchiiUi::Enabled() ? fritchii_items : items) {
         auto* const item = new QListWidgetItem(entry.first);
         item->setData(Qt::UserRole, QVariant::fromValue(entry.second));
+        if (FritchiiUi::Enabled() && group < ns2_icons.size()) {
+            item->setIcon(Ns2::SidebarIcon(QString::fromLatin1(ns2_icons[group])));
+            ui->selectorList->setIconSize(QSize(24, 24));
+        }
+        ++group;
 
         ui->selectorList->addItem(item);
     }

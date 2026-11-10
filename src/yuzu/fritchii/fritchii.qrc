@@ -5,6 +5,12 @@
         <file>ns2/fundo.jpg</file>
         <file>ns2/logo.png</file>
         <file>ns2/logo_lateral.png</file>
+        <file>ns2/icons/geral.svg</file>
+        <file>ns2/icons/graficos.svg</file>
+        <file>ns2/icons/controles.svg</file>
+        <file>ns2/icons/audio.svg</file>
+        <file>ns2/icons/sistema.svg</file>
+        <file>ns2/icons/avancado.svg</file>
         <file>whats-new.md</file>
         <file>fonts/Inter-Regular.ttf</file>
         <file>fonts/Inter-Medium.ttf</file>

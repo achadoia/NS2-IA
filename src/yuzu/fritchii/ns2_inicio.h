@@ -4,6 +4,8 @@
 
 #pragma once
 
+class QIcon;
+class QString;
 class QWidget;
 
 namespace Ns2 {
@@ -14,5 +16,8 @@ void SetUpInicio(QWidget* game_list);
 /// Paints the NS2-IA art behind the settings dialogs (global and per game), with the logo at the
 /// foot of their sidebar.
 void SetUpDialogArt();
+
+/// A settings sidebar icon (fritchii/ns2/icons/<name>.svg): yellow, and black when selected.
+QIcon SidebarIcon(const QString& name);
 
 } // namespace Ns2
