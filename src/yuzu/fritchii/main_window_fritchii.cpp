@@ -146,6 +146,7 @@ void MainWindow::SetUpFritchiiUi() {
     } else {
         Ns2::SetUpInicio(game_list);
     }
+    Ns2::SetUpDialogArt();
 
     // In-game controls: the menu bar is gone and the rail steps aside while a game runs.
     auto* controls = new FritchiiUi::GameControls(

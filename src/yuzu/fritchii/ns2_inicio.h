@@ -11,4 +11,8 @@ namespace Ns2 {
 /// Paints the NS2-IA background and logo behind `game_list` and leaves room for the logo.
 void SetUpInicio(QWidget* game_list);
 
+/// Paints the NS2-IA art behind the settings dialogs (global and per game), with the logo at the
+/// foot of their sidebar.
+void SetUpDialogArt();
+
 } // namespace Ns2

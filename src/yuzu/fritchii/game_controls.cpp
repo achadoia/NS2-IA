@@ -23,7 +23,7 @@ constexpr Qt::WindowFlags StripFlags = Qt::Tool | Qt::FramelessWindowHint |
 // after it leaves (or leaves the strip).
 constexpr int HotZone = 90;
 constexpr qint64 LingerMs = 1200;
-constexpr unsigned IconColor = 0x141413;
+constexpr unsigned IconColor = 0xfaf9f5;
 
 } // namespace
 
@@ -145,9 +145,9 @@ void GameControls::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     // NS2-IA: flat cream box, thick black border, hard shadow.
     const QRect box = rect().adjusted(0, 0, -5, -5);
-    painter.fillRect(box.translated(5, 5), QColor(0x14, 0x14, 0x13));
-    painter.fillRect(box, QColor(0xfa, 0xf9, 0xf5));
-    painter.setPen(QPen(QColor(0x14, 0x14, 0x13), 3));
+    painter.fillRect(box.translated(5, 5), QColor(0xff, 0xd6, 0x0a));
+    painter.fillRect(box, QColor(0x14, 0x14, 0x13));
+    painter.setPen(QPen(QColor(0xff, 0xd6, 0x0a), 3));
     painter.drawRect(box.adjusted(1, 1, -2, -2));
 }
 

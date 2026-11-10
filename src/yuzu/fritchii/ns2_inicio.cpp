@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include <QAbstractItemView>
+#include <QApplication>
 #include <QEvent>
 #include <QLayout>
 #include <QPainter>
@@ -48,7 +49,65 @@ private:
     QPixmap logo;
 };
 
+/// Settings dialogs: the art (darkened) behind the pages and the vertical logo under the sidebar.
+class DialogArt final : public QObject {
+public:
+    explicit DialogArt(QObject* parent)
+        : QObject(parent), art(QStringLiteral(":/fritchii/ns2/fundo.jpg")),
+          logo(QStringLiteral(":/fritchii/ns2/logo_lateral.png")) {}
+
+    bool eventFilter(QObject* watched, QEvent* event) override {
+        if (event->type() != QEvent::Paint || !watched->isWidgetType()) {
+            return false;
+        }
+        const QString name = watched->objectName();
+        if (name != QStringLiteral("ConfigureDialog") &&
+            name != QStringLiteral("ConfigurePerGame")) {
+            return false;
+        }
+        auto* dialog = static_cast<QWidget*>(watched);
+        QPainter painter(dialog);
+        const QSize area = dialog->size();
+        if (!art.isNull()) {
+            const QPixmap scaled = art.scaled(area, Qt::KeepAspectRatioByExpanding,
+                                              Qt::SmoothTransformation);
+            painter.drawPixmap(area.width() - scaled.width(), area.height() - scaled.height(),
+                               scaled);
+            painter.fillRect(dialog->rect(), QColor(0, 0, 0, 110));
+        }
+        if (!logo.isNull()) {
+            QRect slot(12, area.height() - logo.height() - 70, logo.width(), logo.height());
+            if (auto* list = dialog->findChild<QWidget*>(QStringLiteral("selectorList"))) {
+                const QRect g(list->mapTo(dialog, QPoint(0, 0)), list->size());
+                if (g.width() >= 120) {
+                    const int w = std::min(logo.width(), g.width() - 12);
+                    const QPixmap fit = logo.scaledToWidth(w, Qt::SmoothTransformation);
+                    slot = QRect(g.x() + (g.width() - fit.width()) / 2,
+                                 g.bottom() - fit.height() - 8, fit.width(), fit.height());
+                    painter.drawPixmap(slot.topLeft(), fit);
+                    return false;
+                }
+            }
+            painter.drawPixmap(slot.topLeft(), logo);
+        }
+        return false;
+    }
+
+private:
+    QPixmap art;
+    QPixmap logo;
+};
+
 } // namespace
+
+void SetUpDialogArt() {
+    static bool once = false;
+    if (once || !qApp) {
+        return;
+    }
+    once = true;
+    qApp->installEventFilter(new DialogArt(qApp));
+}
 
 void SetUpInicio(QWidget* game_list) {
     if (!game_list) {

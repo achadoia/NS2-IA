@@ -140,7 +140,23 @@ def logo():
     img.save(OUT / "logo.png")
 
 
+def logo_lateral():
+    """Icone N-IA + nome embaixo, para o pe da barra lateral das configuracoes."""
+    icon = Image.open(ROOT / "ns2" / "arte" / "ns2ia.png").convert("RGBA").resize((120, 120), Image.LANCZOS)
+    font = ImageFont.truetype(BLACK_FONT, 34)
+    w, h = 190, 190
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    img.alpha_composite(icon, ((w - 120) // 2, 0))
+    d = ImageDraw.Draw(img)
+    l, t, r, b = d.textbbox((0, 0), "NS2-IA", font=font)
+    tx, ty = (w - (r - l)) // 2 - l, 132 - t
+    d.text((tx + 3, ty + 3), "NS2-IA", font=font, fill=INK + (255,))
+    d.text((tx, ty), "NS2-IA", font=font, fill=CREAM + (255,), stroke_width=2, stroke_fill=INK + (255,))
+    img.save(OUT / "logo_lateral.png")
+
+
 if __name__ == "__main__":
     fundo()
     logo()
+    logo_lateral()
     print("ok:", OUT)

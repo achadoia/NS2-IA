@@ -37,14 +37,14 @@
 namespace FritchiiUi {
 namespace {
 
-// NS2-IA: AchadoIA neobrutalism (cream, black ink, flat yellow / pink / cyan / lime)
-const QColor Background{0xfa, 0xf9, 0xf5};
-const QColor Raised{0xff, 0xff, 0xff};
-const QColor Field{0xff, 0xff, 0xff};
-const QColor Button{0xff, 0xff, 0xff};
-const QColor Text{0x14, 0x14, 0x13};
-const QColor TextSecondary{0x4a, 0x48, 0x42};
-const QColor TextDisabled{0x82, 0x7e, 0x76};
+// NS2-IA: AchadoIA neobrutalism, dark (near-black, cream text, flat yellow / pink / cyan / lime)
+const QColor Background{0x14, 0x14, 0x13};
+const QColor Raised{0x1c, 0x1c, 0x1a};
+const QColor Field{0x0e, 0x0e, 0x0d};
+const QColor Button{0x1c, 0x1c, 0x1a};
+const QColor Text{0xfa, 0xf9, 0xf5};
+const QColor TextSecondary{0xbd, 0xb9, 0xae};
+const QColor TextDisabled{0x6e, 0x6b, 0x64};
 const QColor IconIdle{0xd6, 0xd3, 0xca};
 const QColor Accent{0xff, 0xd6, 0x0a};
 const QColor OnAccent{0x14, 0x14, 0x13};
@@ -67,11 +67,11 @@ QPalette GraphitePalette() {
     p.setColor(QPalette::Link, Accent);
     p.setColor(QPalette::LinkVisited, Accent);
     p.setColor(QPalette::Highlight, QColor(0xff, 0x6b, 0x9d));
-    p.setColor(QPalette::Light, QColor(0xff, 0xff, 0xff));
-    p.setColor(QPalette::Midlight, QColor(0xee, 0xec, 0xe4));
-    p.setColor(QPalette::Mid, QColor(0xd6, 0xd3, 0xca));
-    p.setColor(QPalette::Dark, QColor(0x14, 0x14, 0x13));
-    p.setColor(QPalette::Shadow, QColor(0x14, 0x14, 0x13));
+    p.setColor(QPalette::Light, QColor(0x3a, 0x39, 0x36));
+    p.setColor(QPalette::Midlight, QColor(0x2a, 0x29, 0x27));
+    p.setColor(QPalette::Mid, QColor(0x22, 0x22, 0x20));
+    p.setColor(QPalette::Dark, QColor(0x0a, 0x0a, 0x09));
+    p.setColor(QPalette::Shadow, QColor(0x00, 0x00, 0x00));
     for (const auto role : {QPalette::WindowText, QPalette::Text, QPalette::ButtonText}) {
         p.setColor(QPalette::Disabled, role, TextDisabled);
     }
@@ -137,8 +137,8 @@ bool ApplyTheme() {
     font.setWeight(QFont::DemiBold);
     QApplication::setFont(font);
     QApplication::setPalette(GraphitePalette());
-    // Light background: the light icon set.
-    QIcon::setThemeName(QStringLiteral("colorful"));
+    // Dark background: the dark icon set.
+    QIcon::setThemeName(QStringLiteral("colorful_dark"));
 
     QFile qss(QStringLiteral(":/fritchii/ns2aia.qss"));
     if (qss.open(QFile::ReadOnly | QFile::Text)) {
@@ -410,8 +410,8 @@ QWidget* SettingsPage(QWidget* page) {
 const char* LoadingBarStyle() {
     return R"(
 QProgressBar {
-  background-color: #faf9f5;
-  border: 2px solid #141413;
+  background-color: #0e0e0d;
+  border: 2px solid #ffd60a;
   border-radius: 0;
   max-height: 10px;
 }
