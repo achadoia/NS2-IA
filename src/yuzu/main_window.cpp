@@ -5817,6 +5817,15 @@ void MainWindow::LoadTranslation() {
         qApp->installTranslator(&translator);
     else
         UISettings::values.language = std::string("en");
+
+    // NS2-IA: Qt's own texts (OK / Cancel / Apply...) from translations/qtbase_<lang>.qm.
+    static QTranslator qt_translator;
+    qApp->removeTranslator(&qt_translator);
+    if (qt_translator.load(QStringLiteral("qtbase_%1").arg(QString::fromStdString(
+                               UISettings::values.language.GetValue())),
+                           QCoreApplication::applicationDirPath() + QStringLiteral("/translations"))) {
+        qApp->installTranslator(&qt_translator);
+    }
 }
 
 void MainWindow::OnLanguageChanged(const QString& locale) {

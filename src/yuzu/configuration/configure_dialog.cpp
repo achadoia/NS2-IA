@@ -4,6 +4,8 @@
 // SPDX-FileCopyrightText: 2016 Citra Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <QScreen>
 #include <memory>
 #include "common/logging.h"
 #include "common/settings.h"
@@ -123,7 +125,17 @@ ConfigureDialog::ConfigureDialog(QWidget* parent, HotkeyRegistry& registry_,
         ui->selectorList->setFixedWidth(180);
         layout()->setSizeConstraint(QLayout::SetNoConstraint);
         setMinimumSize(640, 460);
-        resize(940, 680);
+        // NS2-IA: maximize / minimize buttons, and a window large enough for the controller
+        // page without scroll bars (most of the screen it opens on).
+        setWindowFlags(windowFlags() | Qt::WindowMaximizeButtonHint |
+                       Qt::WindowMinimizeButtonHint);
+        QSize size(940, 680);
+        if (const QScreen* screen = parentWidget() ? parentWidget()->screen() : this->screen()) {
+            const QRect area = screen->availableGeometry();
+            size = QSize(std::max(940, area.width() * 9 / 10), std::max(680, area.height() * 9 / 10));
+            size = size.boundedTo(area.size());
+        }
+        resize(size);
     }
 
     // Selects the leftmost button on the bottom bar (Cancel as of writing)

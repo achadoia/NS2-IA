@@ -22,6 +22,9 @@ deps() {
 }
 for exe in NS2-IA.exe NS2-IA-cli.exe; do deps "$exe"; done
 find . -name '*.dll' | while read -r dll; do deps "$dll"; done
+# textos do proprio Qt (OK, Cancelar...) em portugues
+mkdir -p "$DST/translations"
+cp -f /ucrt64/share/qt6/translations/qtbase_pt_BR.qm "$DST/translations/" 2>/dev/null || true
 # receitas de shaders do Fritchii (OoT cache v54): nao vem no codigo-fonte
 for r in /d/Fritchii-v5-Windows-x64/recipes; do
   [ -d "$r" ] && mkdir -p "$DST/recipes" && cp -n "$r"/* "$DST/recipes/" 2>/dev/null || true

@@ -13,6 +13,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TS = ROOT / "dist" / "languages" / "pt_BR.ts"
 DB = ROOT / "ns2" / "traducoes.json"
+# Traducoes antigas do pt_BR.ts do projeto que estao erradas ou em portugues de Portugal:
+# trocadas sempre, em qualquer contexto.
+FORCAR = {
+    "Controls": "Controles",
+    "Audio": "Áudio",
+    "Configure Controls": "Configurar controles",
+}
 
 
 def juntar():
@@ -43,6 +50,12 @@ def aplicar():
         for m in ctx.iter("message"):
             tr = m.find("translation")
             if tr is None or m.get("numerus") == "yes":
+                continue
+            forced = FORCAR.get(m.findtext("source") or "")
+            if forced is not None:
+                tr.text = forced
+                tr.attrib.pop("type", None)
+                filled += 1
                 continue
             if tr.get("type") != "unfinished" and (tr.text or "").strip():
                 continue
