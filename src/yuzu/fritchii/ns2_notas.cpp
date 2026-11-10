@@ -395,7 +395,13 @@ QString NotasZelda::AcharSave() const {
 }
 
 void NotasZelda::Abrir(quint64 title_id) {
-    titulo_hex = QStringLiteral("%1").arg(title_id, 16, 16, QLatin1Char('0')).toUpper();
+    const QString novo_titulo = QStringLiteral("%1").arg(title_id, 16, 16, QLatin1Char('0')).toUpper();
+    if (isVisible() && novo_titulo == titulo_hex) {
+        // ja aberta: F7 de novo fecha (alterna), sem recarregar nada
+        close();
+        return;
+    }
+    titulo_hex = novo_titulo;
     const QString dir = QApplication::applicationDirPath() + QStringLiteral("/notas/") + titulo_hex;
     if (dir != dir_dados) {
         if (!CarregarDados(dir)) {
@@ -422,9 +428,9 @@ void NotasZelda::Abrir(quint64 title_id) {
     for (const auto& p : saves_slot) {
         cmb_slot->addItem(QFileInfo(p).dir().dirName(), p);
     }
+    setAttribute(Qt::WA_ShowWithoutActivating, false);
     show();
     raise();
-    activateWindow();
     save = {};
     Atualizar();
     timer->start();

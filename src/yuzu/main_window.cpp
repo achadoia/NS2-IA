@@ -1425,7 +1425,12 @@ void MainWindow::InitializeDebugWidgets() {
     addAction(notas_action);
     connect(notas_action, &QAction::triggered, this, [this] {
         if (!notas_zelda) {
-            notas_zelda = new NotasZelda(this);
+            // Janela independente (sem pai): uma janela filha da principal, ao ser mostrada de novo,
+            // pode mexer na hierarquia de janelas nativas da tela do jogo (superficie Vulkan).
+            notas_zelda = new NotasZelda(nullptr);
+            notas_zelda->setAttribute(Qt::WA_QuitOnClose, false);
+            notas_zelda->setWindowIcon(windowIcon());
+            connect(this, &QObject::destroyed, notas_zelda, &QObject::deleteLater);
         }
         u64 title_id = 0x0400486024DEC000ULL; // sem jogo aberto: Ocarina of Time (Switch 2)
         if (emulation_running) {
