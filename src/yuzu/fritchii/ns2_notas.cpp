@@ -94,6 +94,14 @@ Save LerSave(const QString& caminho) {
         }
         if (secao == 0) {
             s.bools.insert(h, v);
+        } else if (secao == 16 && v + 64 <= static_cast<quint32>(d.size())) {
+            // String64: valor = offset de 64 bytes terminados em 0
+            const char* txt = d.constData() + v;
+            s.textos.insert(h, QString::fromUtf8(txt, static_cast<qsizetype>(qstrnlen(txt, 64))));
+        } else if (secao == 10 && v + 12 <= static_cast<quint32>(d.size())) {
+            float f[3];
+            std::memcpy(f, d.constData() + v, 12);
+            s.vetores.insert(h, {f[0], f[1], f[2]});
         } else if (secao == 32) {
             // lista de chaves de 64 bits ligadas, ate um 0 ou o fim do arquivo
             for (qsizetype p = v; p + 8 <= d.size(); p += 8) {
@@ -164,6 +172,33 @@ private:
     QString cor, letra;
     bool pego = false;
     bool hover = false;
+};
+
+class MarcadorLink : public QGraphicsItem {
+public:
+    MarcadorLink(double x, double y) {
+        setPos(x, y);
+        setZValue(10);
+        setFlag(ItemIgnoresTransformations);
+        setToolTip(U("<b>Você está aqui</b><br>posição do último save/autosave"));
+    }
+    QRectF boundingRect() const override {
+        return {-20, -20, 40, 40};
+    }
+    void paint(QPainter* p, const QStyleOptionGraphicsItem*, QWidget*) override {
+        p->setRenderHint(QPainter::Antialiasing);
+        p->setPen(QPen(QColor(kFundo), 3));
+        p->setBrush(QColor(255, 255, 255, 70));
+        p->drawEllipse(QPointF(0, 0), 18, 18);
+        p->setBrush(QColor(0x3d, 0xd6, 0x5c));
+        p->drawEllipse(QPointF(0, 0), 12, 12);
+        QFont f = p->font();
+        f.setBold(true);
+        f.setPixelSize(13);
+        p->setFont(f);
+        p->setPen(QColor(kFundo));
+        p->drawText(QRectF(-12, -12, 24, 24), Qt::AlignCenter, QStringLiteral("L"));
+    }
 };
 
 } // namespace
@@ -262,6 +297,17 @@ void NotasZelda::MontarUi() {
         Atualizar();
     });
 
+    chk_seguir = new QCheckBox(U("📍 Seguir o Link (área e idade atuais)"), lado);
+    chk_seguir->setChecked(true);
+    chk_seguir->setToolTip(U("Abre na área e na idade em que o Link está, pelo último save/autosave.\n"
+                             "Trocar a área ou a idade à mão desliga; marque de novo para voltar."));
+    l->addWidget(chk_seguir);
+    connect(chk_seguir, &QCheckBox::toggled, this, [this](bool on) {
+        if (on) {
+            SeguirLink();
+        }
+    });
+
     auto* g1 = new QLabel(U("ÁREA"), lado);
     g1->setObjectName(QStringLiteral("Grupo"));
     l->addWidget(g1);
@@ -269,6 +315,7 @@ void NotasZelda::MontarUi() {
     cmb_area->setMaxVisibleItems(32);
     l->addWidget(cmb_area);
     connect(cmb_area, &QComboBox::currentIndexChanged, this, &NotasZelda::TrocarArea);
+    connect(cmb_area, &QComboBox::activated, this, [this](int) { chk_seguir->setChecked(false); });
 
     auto* eras = new QHBoxLayout;
     btn_crianca = new QPushButton(U("Criança (passado)"), lado);
@@ -283,6 +330,7 @@ void NotasZelda::MontarUi() {
                 TrocarArea(cmb_area->currentIndex());
             }
         });
+        connect(b, &QPushButton::clicked, this, [this] { chk_seguir->setChecked(false); });
     }
     btn_crianca->setChecked(true);
     l->addLayout(eras);
@@ -432,7 +480,11 @@ void NotasZelda::Abrir(quint64 title_id) {
     show();
     raise();
     save = {};
+    chk_seguir->blockSignals(true);
+    chk_seguir->setChecked(true);
+    chk_seguir->blockSignals(false);
     Atualizar();
+    SeguirLink();
     timer->start();
 }
 
@@ -461,12 +513,27 @@ bool NotasZelda::CarregarDados(const QString& dir) {
         ar.id = a.value(QStringLiteral("id")).toString();
         ar.nome = a.value(QStringLiteral("nome")).toString();
         ar.masmorra = a.value(QStringLiteral("masmorra")).toBool();
+        ar.cx = a.value(QStringLiteral("cx")).toDouble();
+        ar.cz = a.value(QStringLiteral("cz")).toDouble();
+        ar.altura = a.value(QStringLiteral("altura")).toDouble(1);
         const auto m = a.value(QStringLiteral("mapas")).toObject();
         for (auto k = m.begin(); k != m.end(); ++k) {
             ar.mapas.insert(k.key(), k.value().toString());
         }
         areas.push_back(ar);
     }
+    mapa_w = o.value(QStringLiteral("mapa_w")).toDouble(1000);
+    mapa_h = o.value(QStringLiteral("mapa_h")).toDouble(720);
+    bancs.clear();
+    const auto bo = o.value(QStringLiteral("bancs")).toObject();
+    for (auto k = bo.begin(); k != bo.end(); ++k) {
+        const auto par = k.value().toArray();
+        bancs.insert(k.key(), {par.at(0).toString(), par.at(1).toString()});
+    }
+    const auto est = o.value(QStringLiteral("estado")).toObject();
+    h_banc = static_cast<quint32>(est.value(QStringLiteral("Sequence_CurrentBanc")).toDouble());
+    h_infancia = static_cast<quint32>(est.value(QStringLiteral("Sequence_IsChildhood")).toDouble());
+    h_pos = static_cast<quint32>(est.value(QStringLiteral("Player_Pos_For_Map")).toDouble());
     for (const auto& v : o.value(QStringLiteral("categorias")).toArray()) {
         const auto c = v.toObject();
         Categoria cat{c.value(QStringLiteral("id")).toString(), c.value(QStringLiteral("nome")).toString(),
@@ -618,7 +685,89 @@ void NotasZelda::Atualizar() {
     save = std::move(novo);
     lbl_save->setText(U("Acompanhando %1 · atualizado às %2")
                           .arg(QFileInfo(p).dir().dirName(), t.toString(QStringLiteral("HH:mm:ss"))));
-    Redesenhar();
+    if (chk_seguir->isChecked()) {
+        SeguirLink();
+    } else {
+        Redesenhar();
+    }
+}
+
+bool NotasZelda::OndeEstaLink(int& area, QString& era, double& px, double& py) const {
+    if (!save.ok || h_banc == 0) {
+        return false;
+    }
+    const QString banc = save.textos.value(h_banc);
+    if (banc.isEmpty()) {
+        return false;
+    }
+    QPair<QString, QString> alvo = bancs.value(banc);
+    if (alvo.first.isEmpty()) {
+        // cena sem mapa proprio (interior, variante): tenta pelo nome da area antes do primeiro "_"
+        const QString base = banc.section(QLatin1Char('_'), 0, 0);
+        for (auto it = bancs.begin(); it != bancs.end(); ++it) {
+            if (it.value().first == base) {
+                alvo = {base, QString()};
+                break;
+            }
+        }
+    }
+    if (alvo.first.isEmpty()) {
+        return false;
+    }
+    area = -1;
+    for (int i = 0; i < areas.size(); ++i) {
+        if (areas[i].id == alvo.first) {
+            area = i;
+            break;
+        }
+    }
+    if (area < 0) {
+        return false;
+    }
+    era = alvo.second;
+    if (era.isEmpty()) {
+        if (banc.contains(QStringLiteral("_Adult"))) {
+            era = QStringLiteral("adulto");
+        } else if (banc.contains(QStringLiteral("_Child"))) {
+            era = QStringLiteral("crianca");
+        } else {
+            era = save.bools.value(h_infancia, 1) ? QStringLiteral("crianca") : QStringLiteral("adulto");
+        }
+    }
+    px = py = -1;
+    const auto pos = save.vetores.value(h_pos);
+    const auto& a = areas[area];
+    if (pos.size() == 3 && a.altura > 0 && (pos[0] != 0.0f || pos[2] != 0.0f)) {
+        const double k = mapa_h / a.altura;
+        px = mapa_w / 2 + (pos[0] - a.cx) * k;
+        py = mapa_h / 2 + (pos[2] - a.cz) * k;
+    }
+    return true;
+}
+
+void NotasZelda::SeguirLink() {
+    int area;
+    QString era;
+    double px, py;
+    if (!OndeEstaLink(area, era, px, py)) {
+        Redesenhar();
+        return;
+    }
+    for (auto* b : {btn_crianca, btn_adulto}) {
+        b->blockSignals(true);
+    }
+    (era == QStringLiteral("adulto") ? btn_adulto : btn_crianca)->setChecked(true);
+    for (auto* b : {btn_crianca, btn_adulto}) {
+        b->blockSignals(false);
+    }
+    cmb_area->blockSignals(true);
+    cmb_area->setCurrentIndex(area);
+    cmb_area->blockSignals(false);
+    area_atual = -1; // forca recarregar o mapa (a idade pode ter mudado)
+    TrocarArea(area);
+    if (px >= 0) {
+        vista->centerOn(px, py);
+    }
 }
 
 void NotasZelda::Redesenhar() {
@@ -684,6 +833,14 @@ void NotasZelda::Redesenhar() {
         it->setForeground(p ? QColor(0x8a, 0x88, 0x80) : QColor(cat->cor));
         it->setData(Qt::UserRole, c.tem_pos ? QPointF(c.x, c.y) : QPointF(-1, -1));
         it->setToolTip(c.tem_pos ? U("Clique duas vezes para achar no mapa") : U("Sem posição no mapa"));
+    }
+    {
+        int la;
+        QString le;
+        double lx, ly;
+        if (OndeEstaLink(la, le, lx, ly) && la == area_atual && le == era && lx >= 0) {
+            cena->addItem(new MarcadorLink(lx, ly));
+        }
     }
     for (auto it = lbl_cat.begin(); it != lbl_cat.end(); ++it) {
         const auto* cat = cat_por_id.value(it.key());

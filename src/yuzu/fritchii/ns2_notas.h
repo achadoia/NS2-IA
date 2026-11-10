@@ -8,6 +8,7 @@
 #include <QSet>
 #include <QString>
 #include <QVector>
+#include <QPair>
 #include <QWidget>
 
 class QCheckBox;
@@ -30,6 +31,7 @@ struct Area {
     QString id, nome;
     bool masmorra = false;
     QHash<QString, QString> mapas; // "crianca"/"adulto" -> caminho relativo
+    double cx = 0, cz = 0, altura = 1; // camera do mapa (MapCaptureInfo): mundo -> pixel
 };
 
 struct Categoria {
@@ -56,6 +58,8 @@ struct Save {
     QDateTime quando;
     QHash<quint32, quint32> bools;
     QSet<quint64> chaves;
+    QHash<quint32, QString> textos;           // String64 (ex. Sequence_CurrentBanc)
+    QHash<quint32, QVector<float>> vetores;   // Vector3 (ex. Player_Pos_For_Map)
     bool ok = false;
 };
 
@@ -84,6 +88,8 @@ private:
     QString EraAtual() const;
     bool Pego(const NS2Notas::Check& c) const;
     QString AcharSave() const;
+    void SeguirLink();      // poe area/idade/vista onde o Link esta (pelo save)
+    bool OndeEstaLink(int& area, QString& era, double& px, double& py) const;
 
     QString dir_dados;
     QString titulo_hex;
@@ -94,6 +100,9 @@ private:
     QHash<QString, bool> cat_visivel;
     NS2Notas::Save save;
     QString save_forcado;
+    QHash<QString, QPair<QString, QString>> bancs; // cena -> (area, era)
+    quint32 h_banc = 0, h_infancia = 0, h_pos = 0;
+    double mapa_w = 1000, mapa_h = 720;
 
     QLabel* lbl_save = nullptr;
     QLabel* lbl_total = nullptr;
@@ -103,6 +112,7 @@ private:
     QPushButton* btn_adulto = nullptr;
     QLineEdit* busca = nullptr;
     QCheckBox* chk_esconder_pegos = nullptr;
+    QCheckBox* chk_seguir = nullptr;
     QVBoxLayout* lay_cats = nullptr;
     QHash<QString, QCheckBox*> chk_cat;
     QHash<QString, QLabel*> lbl_cat;
